@@ -1,6 +1,7 @@
 # recommender wrapper api
 
 from flask import Flask, request, render_template, jsonify
+import logging
 import os
 import time
 import redis
@@ -10,6 +11,8 @@ import pandas as pd
 
 app = Flask(__name__)
 cache = redis.Redis(host='redis', port=6379)
+logging.basicConfig(format='%(asctime)s %(message)s')
+
 
 prefix = os.getenv("DATA_DIR_URL")
 books_csv_path = 'Books.csv'
@@ -46,7 +49,11 @@ def recommend():
         # fetch
         # or call api and store
         r = requests.post('http://model:5000/recommend_for_ISBN', data={'book_ISBN': book_ISBN})
-        return r.json()
+        books = list(r.json().values())
+        # books = [i[0] for i in books]
+        logging.warning(f"{books = }")
+        return render_template('returned_book_items.html', template_folder='/templates', books=books)
+
     except IndexError as e:
         return jsonify({"Message": "Book nof found"})
 

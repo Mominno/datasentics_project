@@ -1,0 +1,23 @@
+{% extends 'index.html' %}
+{% block body %}
+<table>
+    <tr>
+        <td> Cover image </td>
+        <td> Book-Title  </td>
+        <td> Book-Author </td>
+        <td> Publisher   </td>
+        <td> Year-Of-Publication </td>
+        <td> ISBN </td>
+    </tr>
+    {% for book in books %}
+    <tr>
+        <td><IMG src="{{ book['Image-URL-S'] }}"></td>
+        <td> {{ book['Book-Title'] }} </td>
+        <td> {{ book['Book-Author'] }} </td>
+        <td> {{ book['Publisher'] }} </td>
+        <td> {{ book['Year-Of-Publication'] }} </td>
+        <td> {{ book['ISBN'] }} </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
