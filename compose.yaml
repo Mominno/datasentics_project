@@ -5,9 +5,9 @@ services:
       - "8080:5000"
     volumes:
       - type: "bind"
-      - source: "./data"
-      - target: "/opt/data"
-     environment:
+        source: "./data"
+        target: "/opt/data"
+    environment:
       DATA_DIR_URL: "/opt/data"
 
   redis:
@@ -19,9 +19,7 @@ services:
       - "5000:5000"
     volumes:
       - type: "bind"
-      - source: "./data"
-      - target: "/opt/data"
+        source: "./data"
+        target: "/opt/data"
     environment:
       DATA_DIR_URL: "/opt/data"
-volume:
-  "test_app"

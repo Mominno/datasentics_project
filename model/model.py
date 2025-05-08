@@ -16,20 +16,15 @@ def get_implicit_ratings(ratings_df):
 def load_data():
 	"""Return tuple of dataframes in order (users, books, ratings).
 		Expects path in environment variables under DATA_DIR_URL key.
-		If no key found, defaults to local dir.	
 	"""
-	env_vars = os.getenv()
-	if "DATA_DIR_URL" in env_vars:
-		prefix = env_vars["DATA_DIR_URL"]
-	else:
-		prefix = "."
+	prefix = os.getenv("DATA_DIR_URL" )
 
 	users_csv_path = 'Users.csv'
 	ratings_csv_path = 'Ratings.csv'
 	books_csv_path = 'Books.csv'
-	users_df = pd.read_csv("/".join(prefix, users_csv_path))
-	ratings_df = pd.read_csv("/".join(prefix, ratings_csv_path))
-	books_df = pd.read_csv("/".join(prefix, books_csv_path))
+	users_df = pd.read_csv("/".join([prefix, users_csv_path]))
+	ratings_df = pd.read_csv("/".join([prefix, ratings_csv_path]))
+	books_df = pd.read_csv("/".join([prefix, books_csv_path]))
 	return users_df, books_df, ratings_df
 
 

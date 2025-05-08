@@ -11,10 +11,9 @@ import pandas as pd
 app = Flask(__name__)
 cache = redis.Redis(host='redis', port=6379)
 
-env_vars = os.getenv()
-prefix = env_vars["DATA_DIR_URL"]
+prefix = os.getenv("DATA_DIR_URL")
 books_csv_path = 'Books.csv'
-books_df = pd.read_csv("/".join(prefix, books_csv_path))
+books_df = pd.read_csv("/".join([prefix, books_csv_path]))
 
 
 def get_hit_count():
