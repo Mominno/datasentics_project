@@ -23,9 +23,8 @@ def recommend_for_book_ISBN():
     if 'book_ISBN' not in request.form:
         abort(400, "Missing 'book_ISBN' in body.")
 
-    logging.warning(f"Recommending for book {book_ISBN}")
-
     book_ISBN = request.form['book_ISBN']
+    logging.warning(f"Recommending for book {book_ISBN}")
     
     if 'top_n' in request.form:
         top_n = request.form['top_n']

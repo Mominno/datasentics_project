@@ -76,8 +76,8 @@ def find_book_in_dataset(book_string, books_df):
 def recommend():
     book_name = request.form['book_name']
     try:
-        logging.warning(f"Recommending for {book['ISBN']}")
         book = find_book_in_dataset(book_name, books_df)
+        logging.warning(f"Recommending for {book['ISBN']}")
         books = get_book_recommendation_data(book)
         return render_template('returned_book_items.html', template_folder='/templates', books=books)
 
