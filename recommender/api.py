@@ -49,12 +49,14 @@ def recommend():
         # fetch
         # or call api and store
         r = requests.post('http://model:5000/recommend_for_ISBN', data={'book_ISBN': book_ISBN})
-        books = list(r.json().values())
-        # books = [i[0] for i in books]
-        logging.warning(f"{books = }")
+        if r.status_code == 200:
+            books = list(r.json().values())
+        else:
+            logging.warning(f"Call to model_api failed: {r.json()}")
         return render_template('returned_book_items.html', template_folder='/templates', books=books)
 
     except IndexError as e:
+        # TODO return page with error
         return jsonify({"Message": "Book nof found"})
 
     
