@@ -22,7 +22,7 @@ model_api_url = 'http://model:5000/recommend_for_ISBN'
 
 def save_book_to_redis(book, value, ttl_seconds=300):
     """Save book to redis. Default time to live is 5 min."""
-    
+
     cache_key = book['ISBN']
     logging.warning("Saving to redis")
     cache.setex(cache_key, ttl_seconds, json.dumps(value))
@@ -45,8 +45,10 @@ def read_book_from_model_api(book):
     """Make request to model API. Returns 502 if model unavailable."""
 
     book_ISBN = book['ISBN']
+    logging.warning(f"Calling model_api for {book_ISBN}")
     response = requests.post(model_api_url, data={'book_ISBN': book_ISBN})
     if response.status_code == 200:
+        logging.warning(f"Call successful  {book_ISBN}")
         books = list(response.json().values())
         return books
     else:
@@ -66,6 +68,7 @@ def find_book_in_dataset(book_string, books_df):
     bool_indices = books_with_lower.str.contains(book_string[0])
     for word in book_string:
         bool_indices = bool_indices & books_with_lower.str.contains(word)
+    logging.warning(f"Found {len(books_df[bool_indices])} possible results for string {book_string}")
     return books_df[bool_indices].iloc[0]
 
 
@@ -73,11 +76,13 @@ def find_book_in_dataset(book_string, books_df):
 def recommend():
     book_name = request.form['book_name']
     try:
+        logging.warning(f"Recommending for {book['ISBN']}")
         book = find_book_in_dataset(book_name, books_df)
         books = get_book_recommendation_data(book)
         return render_template('returned_book_items.html', template_folder='/templates', books=books)
 
     except IndexError as e:
+        logging.warning(f"Recommending failed for string {book_name}")
         abort(404, "Book not found")
         
 
