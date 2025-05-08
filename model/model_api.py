@@ -1,22 +1,29 @@
-from flask import Flask, request
+from flask import Flask, request, abort
+
 
 from model import get_implicit_ratings, load_data, recommend_books_for_book_ISBN
 
+
 app = Flask(__name__)
+
 
 # preload data to memory for fast access
 _, books_df, ratings_df = load_data()
 implicit_ratings, ratings_by_books = get_implicit_ratings(ratings_df)
 
+
 @app.route('/recommend_for_ISBN', methods=['POST'])
 def recommend_for_book_ISBN():
-	# Model already presumes we goot a correct name but lets still check to be sure
-	# first try to find book in data
+	"""Recommends books for given ISBN. Expects body with keys book_ISBN and top_n.
+	Return error when book_ISBN is missing.
+	top_n results default to 5.
+	Books are returned as json schema {book_index: {'ISBN': book_value,...}...}
+	"""
+	
 	if 'book_ISBN' not in request.form:
-		return jsonify({'code': 400,'message': "Missing 'book_ISBN' in body."})
+		abort(400, "Missing 'book_ISBN' in body.")
 	
 	book_ISBN = request.form['book_ISBN']
-
 	
 	if 'top_n' in request.form:
 		top_n = request.form['top_n']

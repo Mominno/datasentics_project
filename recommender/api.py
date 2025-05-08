@@ -1,32 +1,36 @@
-# recommender wrapper api
-
 from flask import Flask, request, render_template, jsonify, abort
 import json
 import logging
 import os
-import time
+import pandas as pd
 import redis
 import requests
+import time
 
-import pandas as pd
-
+# basic config and app setup
 app = Flask(__name__)
 cache = redis.Redis(host='redis', port=6379)
 logging.basicConfig(format='%(asctime)s %(message)s')
 
-
+# preload data
 prefix = os.getenv("DATA_DIR_URL")
 books_csv_path = 'Books.csv'
 books_df = pd.read_csv("/".join([prefix, books_csv_path]))
 
+model_api_url = 'http://model:5000/recommend_for_ISBN'
 
-def save_book_to_redis(book, value, ttl=300):
+
+def save_book_to_redis(book, value, ttl_seconds=300):
+    """Save book to redis. Default time to live is 5 min."""
+    
     cache_key = book['ISBN']
     logging.warning("Saving to redis")
-    cache.setex(cache_key, ttl, json.dumps(value))
+    cache.setex(cache_key, ttl_seconds, json.dumps(value))
+
 
 def get_book_recommendation_data(book):
-    # first check redis cache
+    """Implements redis cache for books based on ISBN."""
+
     cached_data = cache.get(book['ISBN'])
     if cached_data:
         logging.warning("Cache hit!")
@@ -36,9 +40,12 @@ def get_book_recommendation_data(book):
     save_book_to_redis(book, recommended_books)
     return recommended_books
 
+
 def read_book_from_model_api(book):
+    """Make request to model API. Returns 502 if model unavailable."""
+
     book_ISBN = book['ISBN']
-    response = requests.post('http://model:5000/recommend_for_ISBN', data={'book_ISBN': book_ISBN})
+    response = requests.post(model_api_url, data={'book_ISBN': book_ISBN})
     if response.status_code == 200:
         books = list(response.json().values())
         return books
@@ -46,7 +53,14 @@ def read_book_from_model_api(book):
         logging.warning(f"Call to model_api failed: {response.status_code}, {response.text}")
         abort(502)
 
+
 def find_book_in_dataset(book_string, books_df):
+    """ Find book entry in dataset from string. 
+        Splits string into words and return results containing all words in book_string.
+        Case insensitive.
+        For simplicity return just first result.
+    """
+
     books_with_lower = books_df['Book-Title'].str.lower()
     book_string = book_string.lower().split(" ")
     bool_indices = books_with_lower.str.contains(book_string[0])
@@ -64,9 +78,8 @@ def recommend():
         return render_template('returned_book_items.html', template_folder='/templates', books=books)
 
     except IndexError as e:
-        # TODO return page with error
         abort(404, "Book not found")
-        # return jsonify({"Message": })
+        
 
     
 @app.route('/', methods=['GET'])

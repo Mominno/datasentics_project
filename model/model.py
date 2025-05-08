@@ -29,6 +29,9 @@ def load_data():
 
 
 def recommend_books_for_book_ISBN(book_ISBN, ratings_by_books, implicit_ratings, top_n=5):
+	"""Simple colaborative filtering recommendation technique. For given book, retrieve all people who read it,
+	then retrieve all the books theyve collectively read and return top_n most common.
+	"""
     indices = ratings_by_books.groups[book_ISBN]
     user_ids = implicit_ratings.loc[indices, 'User-ID'].values
     return Counter(implicit_ratings[implicit_ratings['User-ID'].isin(user_ids)]['ISBN'].values).most_common(top_n)
