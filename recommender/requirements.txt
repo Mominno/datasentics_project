@@ -1,0 +1,4 @@
+redis
+flask
+requests
+pandas

@@ -1,0 +1,27 @@
+services:
+  model:
+    build: "./model"
+    ports:
+      - "8080:5000"
+    volumes:
+      - type: "bind"
+      - source: "./data"
+      - target: "/opt/data"
+     environment:
+      DATA_DIR_URL: "/opt/data"
+
+  redis:
+    image: "redis:alpine"
+
+  recommender:
+    build: "./recommender"
+    ports: 
+      - "5000:5000"
+    volumes:
+      - type: "bind"
+      - source: "./data"
+      - target: "/opt/data"
+    environment:
+      DATA_DIR_URL: "/opt/data"
+volume:
+  "test_app"
