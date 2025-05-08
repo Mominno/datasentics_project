@@ -1,6 +1,7 @@
 # recommender wrapper api
 
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, abort
+import json
 import logging
 import os
 import time
@@ -19,16 +20,31 @@ books_csv_path = 'Books.csv'
 books_df = pd.read_csv("/".join([prefix, books_csv_path]))
 
 
-def get_hit_count():
-    retries = 5
-    while True:
-        try:
-            return cache.incr('hits')
-        except redis.exceptions.ConnectionError as exc:
-            if retries == 0:
-                raise exc
-            retries -= 1
-            time.sleep(0.5)
+def save_book_to_redis(book, value, ttl=300):
+    cache_key = book['ISBN']
+    logging.warning("Saving to redis")
+    cache.setex(cache_key, ttl, json.dumps(value))
+
+def get_book_recommendation_data(book):
+    # first check redis cache
+    cached_data = cache.get(book['ISBN'])
+    if cached_data:
+        logging.warning("Cache hit!")
+        return json.loads(cached_data)
+
+    recommended_books = read_book_from_model_api(book)
+    save_book_to_redis(book, recommended_books)
+    return recommended_books
+
+def read_book_from_model_api(book):
+    book_ISBN = book['ISBN']
+    response = requests.post('http://model:5000/recommend_for_ISBN', data={'book_ISBN': book_ISBN})
+    if response.status_code == 200:
+        books = list(response.json().values())
+        return books
+    else:
+        logging.warning(f"Call to model_api failed: {response.status_code}, {response.text}")
+        abort(502)
 
 def find_book_in_dataset(book_string, books_df):
     books_with_lower = books_df['Book-Title'].str.lower()
@@ -42,33 +58,21 @@ def find_book_in_dataset(book_string, books_df):
 @app.route('/recommend', methods=['POST'])
 def recommend():
     book_name = request.form['book_name']
-    book = find_book_in_dataset(book_name, books_df)
     try:
-        book_ISBN = book['ISBN']
-        # look into redis
-        # fetch
-        # or call api and store
-        r = requests.post('http://model:5000/recommend_for_ISBN', data={'book_ISBN': book_ISBN})
-        if r.status_code == 200:
-            books = list(r.json().values())
-        else:
-            logging.warning(f"Call to model_api failed: {r.json()}")
+        book = find_book_in_dataset(book_name, books_df)
+        books = get_book_recommendation_data(book)
         return render_template('returned_book_items.html', template_folder='/templates', books=books)
 
     except IndexError as e:
         # TODO return page with error
-        return jsonify({"Message": "Book nof found"})
+        abort(404, "Book not found")
+        # return jsonify({"Message": })
 
     
-
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index.html', template_folder='/templates')
 
-@app.route('/hello')
-def hello():
-    count = get_hit_count()
-    return f'Hello World! I have been seen {count} times.\n'
 
 if __name__ == "__main__":
     app.run()
