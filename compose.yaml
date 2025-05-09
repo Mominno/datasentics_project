@@ -1,8 +1,6 @@
 services:
-  model:
-    build: "./model"
-    ports:
-      - "8080:5000"
+  recommender_service:
+    build: "./recommender_service"
     volumes:
       - type: "bind"
         source: "./data"
@@ -13,13 +11,11 @@ services:
   redis:
     image: "redis:alpine"
 
-  recommender:
-    build: "./recommender"
-    ports: 
-      - "5000:5000"
-    volumes:
-      - type: "bind"
-        source: "./data"
-        target: "/opt/data"
+  gateway:
+    build: "./gateway"
     environment:
       DATA_DIR_URL: "/opt/data"
+  webserver:
+    build: "./webserver"
+    ports: 
+      - "5000:5000"

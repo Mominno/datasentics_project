@@ -1,9 +1,14 @@
-FROM httpd:2.4
-COPY ./website /usr/local/apache2/htdocs/
-# install app dependencies
-#RUN apt-get update && apt-get install -y python3 python3-pip python3.11-venv
-#COPY api.py .
-#RUN python3 -m venv /opt/venv
-#RUN /opt/venv/bin/pip install flask
-EXPOSE 80
-#CMD ["/opt/venv/bin/python", "./api.py"]
+FROM python:3.10-alpine
+# WORKDIR /code
+
+ENV FLASK_APP=webserver.py
+ENV FLASK_RUN_HOST=0.0.0.0
+
+#RUN apk add --no-cache gcc musl-dev linux-headers
+COPY requirements.txt requirements.txt
+RUN pip install -r requirements.txt
+EXPOSE 5000
+COPY . .
+#COPY index.html /templates/index.html
+#CMD ["python", "./api.py"]
+CMD ["flask", "run", "--debug"]

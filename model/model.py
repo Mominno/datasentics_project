@@ -36,4 +36,18 @@ def recommend_books_for_book_ISBN(book_ISBN, ratings_by_books, implicit_ratings,
     user_ids = implicit_ratings.loc[indices, 'User-ID'].values
     return Counter(implicit_ratings[implicit_ratings['User-ID'].isin(user_ids)]['ISBN'].values).most_common(top_n)
 
-    
+
+def find_book_in_dataset(book_string, books_df):
+    """ Find book entry in dataset from string. 
+        Splits string into words and return results containing all words in book_string.
+        Case insensitive.
+        For simplicity return just first result.
+    """
+
+    books_with_lower = books_df['Book-Title'].str.lower()
+    book_string = book_string.lower().split(" ")
+    bool_indices = books_with_lower.str.contains(book_string[0])
+    for word in book_string:
+        bool_indices = bool_indices & books_with_lower.str.contains(word)
+    logging.warning(f"Found {len(books_df[bool_indices])} possible results for string {book_string}")
+    return books_df[bool_indices].iloc[0]
