@@ -1,0 +1,25 @@
+services:
+  recommender_service:
+    build: "./recommender_service"
+    volumes:
+      - type: "bind"
+        source: "./data"
+        target: "/opt/data"
+    environment:
+      DATA_DIR_URL: "/opt/data"
+
+  redis:
+    image: "redis:alpine"
+
+  gateway:
+    build: "./gateway"
+    environment:
+      recommender_service_url: 'recommender_service'
+      recommender_service_port: 5000
+  webserver:
+    build: "./webserver"
+    environment:
+      gateway_service_url: 'gateway'
+      gateway_service_port: 5000
+    ports: 
+      - "80:80"
