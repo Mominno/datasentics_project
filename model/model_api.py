@@ -13,7 +13,7 @@ cache = redis.Redis(host='redis', port=6379)
 
 # preload data to memory for fast access
 _, books_df, ratings_df = load_data()
-implicit_ratings, ratings_by_books = get_implicit_ratings(ratings_df)
+implicit_ratings = get_implicit_ratings(ratings_df)
 
 def save_book_to_redis(book, value, ttl_seconds=300):
     """Save book to redis. Default time to live is 5 min."""
@@ -57,7 +57,6 @@ def recommend_for_book_ISBN(book_ISBN, top_n=5):
 
     recommended_books_with_scores = recommend_books_for_book_ISBN(
                                 book_ISBN,
-                                ratings_by_books,
                                 implicit_ratings, 
                                 top_n=top_n,
                             )

@@ -1,5 +1,26 @@
 {% extends 'index.html' %}
 {% block body %}
+<h3>Recommending based on:</h3>
+
+<table>
+    <tr>
+        <td> Cover image </td>
+        <td> Book-Title  </td>
+        <td> Book-Author </td>
+        <td> Publisher   </td>
+        <td> Year-Of-Publication </td>
+        <td> ISBN </td>
+    </tr>
+    <tr>
+        <td><IMG src="{{ model_book['Image-URL-M'] }}"></td>
+        <td> {{ model_book['Book-Title'] }} </td>
+        <td> {{ model_book['Book-Author'] }} </td>
+        <td> {{ model_book['Publisher'] }} </td>
+        <td> {{ model_book['Year-Of-Publication'] }} </td>
+        <td> {{ model_book['ISBN'] }} </td>
+    </tr>
+</table>
+
 <table>
     <tr>
         <td> Cover image </td>
