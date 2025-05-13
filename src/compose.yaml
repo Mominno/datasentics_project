@@ -6,7 +6,10 @@ services:
         source: "./data"
         target: "/opt/data"
     environment:
-      DATA_DIR_URL: "/opt/data"
+      # DATA_DIR_URL: "/opt/data"
+      USERS_DATA_URL: "/opt/data/Users.csv"
+      RATINGS_DATA_URL: "/opt/data/trans_ratings.csv"
+      BOOKS_DATA_URL:  "/opt/data/trans_books.csv"
 
   redis:
     image: "redis:alpine"

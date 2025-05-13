@@ -28,7 +28,7 @@ def recommend_for_name():
         return response.json()
     else:
         logging.warning(f"Call to model_api failed: {response.status_code}, {response.text}")
-        return jsonify({"message": "Recommender service unavailable", "status_code": 502, "data": {}})
+        return jsonify({"message": "Recommender service unavailable", "status_code": 502, "data": {}, "model_book": {}})
 
 
 if __name__ == "__main__":

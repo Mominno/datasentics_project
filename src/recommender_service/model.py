@@ -20,18 +20,13 @@ def load_data():
     """Return tuple of dataframes in order (users, books, ratings).
         Expects path in environment variables under DATA_DIR_URL key.
     """
-    prefix = os.getenv("DATA_DIR_URL" )
+    users_df_url = os.getenv("USERS_DATA_URL")
+    ratings_df_url = os.getenv("RATINGS_DATA_URL")
+    books_df_url = os.getenv("BOOKS_DATA_URL")
 
-    users_csv_path = 'Users.csv'
-    # ratings_csv_path = 'Ratings.csv'
-    ratings_csv_path = 'trans_ratings.csv'
-    # books_csv_path = 'Books.csv'
-    books_csv_path = 'trans_books.csv'
-    
-
-    users_df = pd.read_csv("/".join([prefix, users_csv_path]))
-    ratings_df = pd.read_csv("/".join([prefix, ratings_csv_path]))
-    books_df = pd.read_csv("/".join([prefix, books_csv_path]))
+    users_df = pd.read_csv(users_df_url)
+    ratings_df = pd.read_csv(ratings_df_url)
+    books_df = pd.read_csv(books_df_url)
 
     return users_df, books_df, ratings_df, book_ID_column_name
 

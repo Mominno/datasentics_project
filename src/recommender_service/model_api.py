@@ -50,7 +50,7 @@ def recommend():
         return jsonify({"data": books, "status_code": 200, "model_book": book.to_json(orient='index')})
     except IndexError as e:
         logging.warning(f"Recommending failed for string {book_name}")
-        return jsonify({"message": "Book not found", "data": "{}", "status_code": 404})
+        return jsonify({"message": "Book not found", "data": "{}", "model_book": "{}", "status_code": 404})
 
 
 def main():
