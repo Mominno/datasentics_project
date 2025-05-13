@@ -1,6 +1,7 @@
 from flask import Flask, request, abort, jsonify
 import redis
 import json
+import os
 
 from model import ( get_implicit_ratings,
                     load_data,
@@ -11,6 +12,8 @@ import logging
 
 app = Flask(__name__)
 cache = redis.Redis(host='redis', port=6379)
+
+recommender_port = os.getenv('RECOMMENDER_PORT')
 
 # preload data to memory for fast access
 _, books_df, ratings_df, book_ID_column_name = load_data()
@@ -54,7 +57,7 @@ def recommend():
 
 
 def main():
-    app.run()
+    app.run(host='0.0.0.0', port=recommender_port)
 
 if __name__ == "__main__":
     main()
