@@ -1,5 +1,22 @@
+from collections import defaultdict
 import pandas as pd
 import re
+
+
+def clear_ratings_from_unknown_ISBNS(ratings_df, books_df):
+    indices_to_drop = []
+    is_isbn_in_books = defaultdict(bool)
+    for ISBN in books_df['ISBN']:
+        is_isbn_in_books[ISBN] = True
+
+    for index, rated_book_ISBN in ratings_df['ISBN'].items():
+        
+        if not is_isbn_in_books[rated_book_ISBN]:
+            # print(index, rated_book_ISBN)
+            indices_to_drop.append(index)
+    # print(indices_to_drop)
+    print(f"Dropped {len(indices_to_drop)} indices.")
+    return ratings_df.drop(indices_to_drop)
 
 
 def check_dataset_ISBN(dataframe):
@@ -77,10 +94,13 @@ def main():
 	# now clean from corrupted isbn
 	clean_ratings_df = get_clean_ISBN_values(ratings_df)
 	clean_books_df = get_clean_ISBN_values(books_df)
+    # we could alternatively enhance our dataset by looking up these missing ISBNs and adding them in books_Df
+    clean_ratings_df = clear_ratings_from_unknown_ISBNS(clean_ratings_df, books_df)
 
 	clean_books_df_with_id = add_new_index_to_books(clean_books_df)
 
 	clean_ratings_with_id = pd.merge(ratings_df, clean_books_df_with_id[['ISBN', 'new-id']], on='ISBN')
+
 
 	# export cleaned data
 	clean_books_df_with_id.to_csv('trans_books.csv')

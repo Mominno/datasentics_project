@@ -11,9 +11,11 @@ from model import ( get_implicit_ratings,
 import logging
 
 app = Flask(__name__)
-cache = redis.Redis(host='redis', port=6379)
-
 recommender_port = os.getenv('RECOMMENDER_PORT')
+redis_host_name = os.getenv('REDIS_HOST_NAME')
+
+cache = redis.Redis(host=redis_host_name, port=6379)
+
 
 # preload data to memory for fast access
 _, books_df, ratings_df, book_ID_column_name = load_data()

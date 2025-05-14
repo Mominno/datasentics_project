@@ -6,7 +6,7 @@ services:
         source: "./data"
         target: "/opt/data"
     environment:
-      # DATA_DIR_URL: "/opt/data"
+      REDIS_HOST_NAME: "redis"
       RECOMMENDER_PORT: 8080
       USERS_DATA_URL: "/opt/data/Users.csv"
       RATINGS_DATA_URL: "/opt/data/trans_ratings.csv"
